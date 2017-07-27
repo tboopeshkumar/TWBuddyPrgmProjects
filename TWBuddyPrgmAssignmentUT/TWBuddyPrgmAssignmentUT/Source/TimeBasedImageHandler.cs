@@ -8,6 +8,13 @@ namespace TWBuddyPrgmAssignmentUT
     /// </summary>
     public class TimeBasedImageHandler
     {
+        private IDateTimeProvider dateTimeProvider;
+
+        public TimeBasedImageHandler(IDateTimeProvider dateTimeProvider)
+        {
+            this.dateTimeProvider = dateTimeProvider;
+        }
+        
         /// <summary>
         /// Returns the image url based on the current time value - AM : SunRise image, PM: MoonRise image. 
         /// </summary>
@@ -15,14 +22,19 @@ namespace TWBuddyPrgmAssignmentUT
         public string GetImageBasedOnCurrentTime()
         {
             string returnValue = "";
-            if (DateTime.Now.ToString("tt") == "AM")
+            if (dateTimeProvider != null)
             {
-                returnValue = Constants.AMImageURL;
+                if (dateTimeProvider.Now.ToString("tt") == "AM")
+                {
+                    returnValue = Constants.AMImageURL;
+                }
+                else if (dateTimeProvider.Now.ToString("tt") == "PM")
+                {
+                    returnValue = Constants.PMImageURL;
+                }
             }
-            else if (DateTime.Now.ToString("tt") == "PM")
-            {
-                returnValue = Constants.PMImageURL;
-            }
+            else
+                throw new Exception(Constants.DateTimeNotInitializedErrorMessage);
             return returnValue;
         }
     }
