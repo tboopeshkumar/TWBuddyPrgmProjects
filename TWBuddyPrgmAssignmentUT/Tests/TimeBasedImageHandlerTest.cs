@@ -1,6 +1,5 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Smocks;
 using TWBuddyPrgmAssignmentUT;
 using Common;
 
@@ -15,29 +14,39 @@ namespace Tests
     [TestClass]
     public class TimeBasedImageHandlerTest
     {
+        /// <summary>
+        /// Method to test the AM time value output. 
+        /// </summary>
         [TestMethod]
         public void TestTimeValidatorWithAMValue()
         {
-            Smock.Run(context =>
-            {
-                context.Setup(() => DateTime.Now).Returns(new DateTime(2015, 2, 20, 9, 0, 0));
-                TimeBasedImageHandler timeHandler = new TimeBasedImageHandler();
-                Assert.AreEqual(Constants.AMImageURL, timeHandler.GetImageBasedOnCurrentTime());
-            });
-
-
+            var mockDateTimeProvider = new Moq.Mock<IDateTimeProvider>();
+            mockDateTimeProvider.Setup(dp => dp.Now).Returns(new DateTime(2015, 2, 20, 9, 0, 0));
+            TimeBasedImageHandler timeHandler = new TimeBasedImageHandler(mockDateTimeProvider.Object);
+            Assert.AreEqual(Constants.AMImageURL, timeHandler.GetImageBasedOnCurrentTime());
         }
 
+        /// <summary>
+        /// Method to test the PM time value output. 
+        /// </summary>
         [TestMethod]
         public void TestTimeValidatorWithPMValue()
         {
-            Smock.Run(context =>
-            {
-                context.Setup(() => DateTime.Now).Returns(new DateTime(2015, 2, 20, 19, 0, 0));
-                TimeBasedImageHandler timeHandler = new TimeBasedImageHandler();
-                Assert.AreEqual(Constants.PMImageURL, timeHandler.GetImageBasedOnCurrentTime());
-            });
+            var mockDateTimeProvider = new Moq.Mock<IDateTimeProvider>();
+            mockDateTimeProvider.Setup(dp => dp.Now).Returns(new DateTime(2015, 2, 20, 19, 0, 0));
+            TimeBasedImageHandler timeHandler = new TimeBasedImageHandler(mockDateTimeProvider.Object);
+            Assert.AreEqual(Constants.PMImageURL, timeHandler.GetImageBasedOnCurrentTime());
+        }
 
+        /// <summary>
+        /// Method to test the null input exception. 
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(Exception),Constants.DateTimeNotInitializedErrorMessage)]
+        public void TestTimeValidatorWithNullValue()
+        {
+           TimeBasedImageHandler timeHandler = new TimeBasedImageHandler(null);
+            timeHandler.GetImageBasedOnCurrentTime();
         }
     }
 }
